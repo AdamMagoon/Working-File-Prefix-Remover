@@ -1,0 +1,43 @@
+'''
+Created on Oct 22, 2014
+
+@author: amagoon
+'''
+#! /usr/bin/python
+
+import os
+from stat import *
+
+# Enter the top folder directory and the desired audio file types.
+folder = r"C:\Users\Public\Mynewfolder"
+fileTypes = ['.mp3', '.wav']
+d = 3
+
+
+def changeName(pathname):
+    head, tail = os.path.split(pathname)
+    try:
+        float(tail[:d])
+        newName = os.path.join(head,tail[d:])
+        os.rename(pathname, newName)
+    except ValueError:
+        print False
+
+def findFiles(top):
+    for item in os.listdir(top):
+        pathname = os.path.join(top, item)
+        fileName, fileExtension = os.path.splitext(pathname)
+        mode = os.stat(pathname)[ST_MODE]
+        if S_ISDIR(mode):
+            # It is a directory. Go into it
+            findFiles(pathname)
+        elif S_ISREG(mode):
+            # It is a file. Call the changeName function
+            for i in range(len(fileTypes)):
+                if fileExtension == fileTypes[i]:
+                    changeName(pathname)
+        else:
+            # Unknown file type. Print a message
+            print 'Skipping %s' % pathname
+
+findFiles(folder)
